@@ -462,13 +462,15 @@ func parseSDRFRUDeviceLocator(data []byte, sdr *SDR) error {
 	s.DeviceIDTypeLength = TypeLength(typeLength)
 
 	var idStrLen int
-	if s.DeviceIDTypeLength.TypeCode() == 0x00 {
-		// unspecified type
-		idStrLen = len(data) - minSize
-	} else {
-		idStrLen = int(s.DeviceIDTypeLength.Length())
-	}
+	idStrLen = len(data) - minSize
+	// if s.DeviceIDTypeLength.TypeCode() == 0x00 {
+	// 	// unspecified type
+	// 	idStrLen = len(data) - minSize
+	// } else {
+	// 	idStrLen = int(s.DeviceIDTypeLength.Length())
+	// }
 	if len(data) < minSize+idStrLen {
+		fmt.Println("debug:-- ", len(data), idStrLen)
 		return fmt.Errorf("sdr (fru device) data must be longer than %d", minSize+idStrLen)
 	}
 

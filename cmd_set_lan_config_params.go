@@ -2,7 +2,7 @@ package ipmi
 
 // 23.1 Set LAN Configuration Parameters Command
 type SetLanConfigParamsRequest struct {
-	ChannelNumber int8
+	ChannelNumber uint8
 	ParamSelector LanParamSelector
 	ConfigData    []byte
 }
@@ -12,7 +12,11 @@ type SetLanConfigParamsResponse struct {
 }
 
 func (req *SetLanConfigParamsRequest) Pack() []byte {
-	return []byte{}
+	out := make([]byte, 2+len(req.ConfigData))
+	packUint8(req.ChannelNumber, out, 0)
+	packUint8(uint8(req.ParamSelector), out, 1)
+	packBytes(req.ConfigData, out, 2)
+	return out
 }
 
 func (req *SetLanConfigParamsRequest) Command() Command {
@@ -37,8 +41,12 @@ func (res *SetLanConfigParamsResponse) Format() string {
 }
 
 // Todo
-func (c *Client) SetLanConfigParams() (response *SetLanConfigParamsResponse, err error) {
-	request := &SetLanConfigParamsRequest{}
+func (c *Client) SetLanConfigParams(channum uint8, paramData LanParamSelector, data []byte) (response *SetLanConfigParamsResponse, err error) {
+	request := &SetLanConfigParamsRequest{
+		ChannelNumber: channum,
+		ParamSelector: paramData,
+		ConfigData:    data,
+	}
 	response = &SetLanConfigParamsResponse{}
 	err = c.Exchange(request, response)
 	return
